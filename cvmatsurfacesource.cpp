@@ -66,9 +66,9 @@ void CVMatSurfaceSource::imshow(const cv::Mat &mat)
                                      m_videoFrame->size().width(),
                                      CV_8UC4, m_videoFrame->bits());
     if (mat.channels() == 3) {
-        cv::cvtColor(mat, matFromSurface, CV_RGB2RGBA);
+        cv::cvtColor(mat, matFromSurface, cv::COLOR_RGB2RGBA);
     } else if (mat.channels() == 1) {
-        cv::cvtColor(mat, matFromSurface, CV_GRAY2RGBA);
+        cv::cvtColor(mat, matFromSurface, cv::COLOR_GRAY2RGBA);
     } else {
         qDebug() << "Wrong channel count";
         return;
@@ -88,7 +88,7 @@ void CVMatSurfaceSource::imshow(const QString &surfaceName, const cv::Mat &mat)
 {
     CVMatSurfaceSourcePrivate *d = g_sources;
     if (d) {
-        CVMatSurfaceSource *source = d->sources.value(surfaceName, 0);
+        CVMatSurfaceSource *source = d->sources.value(surfaceName, nullptr);
         if (source)
             source->imshow(mat);
         else

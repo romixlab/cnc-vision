@@ -3,8 +3,11 @@
 #include <QReadWriteLock>
 #include <QDebug>
 
-#include <opencv2/videoio.hpp>
-#include <opencv2/highgui.hpp> // for CV_CAP_PROP...
+#include <opencv2/opencv.hpp>
+
+//remove
+#include "cvmatsurfacesource.hpp"
+#include <QTime>
 
 CaptureWorker::CaptureWorker(const QString &device, CaptureController *captureController, QObject *parent) :
     QObject(parent), m_device(device), m_captureController(captureController), m_loopRunning(true)
@@ -23,7 +26,7 @@ void CaptureWorker::doWork()
     if (ok) {
         m_capture = new cv::VideoCapture(deviceId);
     } else {
-        m_capture = new cv::VideoCapture(m_device.toStdString());
+        m_capture = new cv::VideoCapture("rkcamsrc device=/dev/video0 io-mode=4 ! video/x-raw,format=NV12,width=640,height=480 ! videoconvert ! appsink", cv::CAP_GSTREAMER);
     }
     if (!m_capture->isOpened()) {
         qWarning() << "Can't capture" << m_device;
@@ -31,10 +34,10 @@ void CaptureWorker::doWork()
         emit workDone();
         return;
     }
-    bool isVideoFile = static_cast<int>(m_capture->get(CV_CAP_PROP_FRAME_COUNT)) > 0;
+    bool isVideoFile = static_cast<int>(m_capture->get(cv::CAP_PROP_FRAME_COUNT)) > 0;
     unsigned long sleepBetweenFrames = 0;
     if (isVideoFile)
-        sleepBetweenFrames = static_cast<unsigned long>((1.0 / m_capture->get(CV_CAP_PROP_FPS)) * 1000000);
+        sleepBetweenFrames = static_cast<unsigned long>((1.0 / m_capture->get(cv::CAP_PROP_FPS)) * 1000000);
     m_captureController->setStatus(CaptureController::Status::Started);
     while(m_loopRunning) {
         if (!m_capture->grab()) {
@@ -49,6 +52,9 @@ void CaptureWorker::doWork()
         }
         m_captureController->m_lock->unlock();
         emit frameReady();
+        CVMatSurfaceSource::imshow("main", m_frame);
+        //qDebug() << "imshow" << m_frame.cols << m_frame.rows << m_frame.size;
+        qDebug() << QTime::currentTime();
 
         if(isVideoFile)
             QThread::usleep(sleepBetweenFrames);
