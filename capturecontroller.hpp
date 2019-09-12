@@ -35,6 +35,9 @@ private:
     CaptureController *m_captureController;
     cv::Mat m_frame;
     bool m_loopRunning;
+    bool m_useUndistort;
+    cv::Mat m_intrinsic;
+    cv::Mat m_distCoeffs;
 };
 
 class CaptureController : public QObject
@@ -61,6 +64,8 @@ public:
     Q_ENUM(Status)
     Status status() const;
 
+    void enableUndistort(const cv::Mat &intrinsic, const cv::Mat &distCoeffs);
+
 public slots:
     void start(const QString &device);
     void stop();
@@ -74,6 +79,7 @@ private:
     CaptureWorker* m_worker;
     QThread m_workerThread;
     mutable QReadWriteLock* m_lock;
+    mutable QReadWriteLock* m_undistortLock;
 
     void setStatus(Status status);
     Status m_status;

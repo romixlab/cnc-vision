@@ -14,6 +14,8 @@ class CVMatSurfaceSource : public QObject
     Q_OBJECT
     Q_PROPERTY(QAbstractVideoSurface* videoSurface READ videoSurface WRITE setVideoSurface)
     Q_PROPERTY(QString name READ name WRITE setName)
+    Q_PROPERTY(quint32 width READ width NOTIFY dimensionsChanged)
+    Q_PROPERTY(quint32 height READ height NOTIFY dimensionsChanged)
 public:
     explicit CVMatSurfaceSource(QObject *parent = nullptr);
     ~CVMatSurfaceSource();
@@ -39,6 +41,12 @@ public:
      */
     void setName(const QString &name);
     QString name() const;
+
+    quint32 width() const;
+    quint32 height() const;
+
+signals:
+    void dimensionsChanged();
 
 private slots:
     void imshowFromVariant(const QVariant &matVariant);

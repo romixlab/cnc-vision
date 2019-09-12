@@ -113,6 +113,7 @@ void CVMatSurfaceSource::createVideoFrame(const cv::Mat &mat)
     if (!m_videoFrame->map(QAbstractVideoBuffer::ReadOnly)) {
         qWarning() << "QVideoFrame::map() failed";
     }
+    emit dimensionsChanged();
 }
 
 bool CVMatSurfaceSource::matHasChanged(const cv::Mat &mat) const
@@ -124,6 +125,20 @@ bool CVMatSurfaceSource::matHasChanged(const cv::Mat &mat) const
 QString CVMatSurfaceSource::name() const
 {
     return m_name;
+}
+
+quint32 CVMatSurfaceSource::width() const
+{
+    if (!m_format.isValid())
+        return 0;
+    return m_format.frameWidth();
+}
+
+quint32 CVMatSurfaceSource::height() const
+{
+    if (!m_format.isValid())
+        return 0;
+    return m_format.frameHeight();
 }
 
 void CVMatSurfaceSource::setName(const QString &name)

@@ -10,7 +10,7 @@
 #include <QTime>
 
 CaptureWorker::CaptureWorker(const QString &device, CaptureController *captureController, QObject *parent) :
-    QObject(parent), m_device(device), m_captureController(captureController), m_loopRunning(true)
+    QObject(parent), m_device(device), m_captureController(captureController), m_loopRunning(true), m_useUndistort(false)
 {
 }
 
@@ -26,7 +26,7 @@ void CaptureWorker::doWork()
     if (ok) {
         m_capture = new cv::VideoCapture(deviceId);
     } else {
-        m_capture = new cv::VideoCapture("rkcamsrc device=/dev/video0 io-mode=4 ! video/x-raw,format=NV12,width=640,height=480 ! videoconvert ! appsink", cv::CAP_GSTREAMER);
+        m_capture = new cv::VideoCapture("http://10.0.1.20:8080/?action=stream");
     }
     if (!m_capture->isOpened()) {
         qWarning() << "Can't capture" << m_device;
@@ -50,11 +50,24 @@ void CaptureWorker::doWork()
             m_captureController->setStatus(CaptureController::Status::EofOrDisconnected);
             break;
         }
+
+        QReadLocker lock(m_captureController->m_undistortLock);
+        if (m_useUndistort) {
+            cv::Mat undistorted(m_frame.rows, m_frame.cols, m_frame.type());
+            cv::undistort(m_frame, undistorted, m_intrinsic, m_distCoeffs);
+            m_frame = undistorted;
+        }
+        lock.unlock();
+
         m_captureController->m_lock->unlock();
+
         emit frameReady();
         CVMatSurfaceSource::imshow("main", m_frame);
+
+
         //qDebug() << "imshow" << m_frame.cols << m_frame.rows << m_frame.size;
-        qDebug() << QTime::currentTime();
+
+        //qDebug() << QTime::currentTime();
 
         if(isVideoFile)
             QThread::usleep(sleepBetweenFrames);
@@ -66,6 +79,7 @@ void CaptureWorker::doWork()
 CaptureController::CaptureController(QObject *parent) :
     QObject(parent), m_worker(nullptr), m_lock(nullptr), m_status(Status::Stopped)
 {
+    m_undistortLock = new QReadWriteLock;
 }
 
 CaptureController::~CaptureController()
@@ -96,6 +110,18 @@ CaptureController::Status CaptureController::status() const
     return m_status;
 }
 
+void CaptureController::enableUndistort(const cv::Mat &intrinsic, const cv::Mat &distCoeffs)
+{
+    if (m_status != Status::Started) {
+        qWarning() << "Can't enable undistort before capture is started";
+        return;
+    }
+    QWriteLocker lock(m_undistortLock);
+    m_worker->m_intrinsic = intrinsic;
+    m_worker->m_distCoeffs = distCoeffs;
+    m_worker->m_useUndistort = true;
+}
+
 void CaptureController::start(const QString &device)
 {
     if (m_status == Status::Started)
@@ -124,7 +150,7 @@ void CaptureController::stop()
     disconnect(m_worker, &CaptureWorker::frameReady, this, &CaptureController::frameReady);
     m_worker->stop();
     m_workerThread.quit();
-    if(!m_workerThread.wait(100)) {
+    if(!m_workerThread.wait(1000)) {
         qWarning() << "Capture thread did not terminate until timeout, trying terminate()";
         m_workerThread.terminate();
     }
