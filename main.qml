@@ -5,7 +5,9 @@ import QtQuick.Layouts 1.12
 import QtMultimedia 5.9
 import io.opencv 1.0
 import tech.vhrd.vision 1.0
+import tech.vhrd 1.0
 import QtCharts 2.3
+import QtQuick.Dialogs 1.2
 
 Window {
     visible: true
@@ -319,14 +321,210 @@ Window {
         onDimensionsChanged: osdRescale(testRect, secondVideoSource, secondVideoOutput)
     }
 
-    VideoOutput {
+    GcodePlayer {
+        id: player
+        onCurrentLineChanged: commandsListView.positionViewAtIndex(currentLineNumber, ListView.Center)
+    }
 
+    FileDialog {
+        id: playerFileDialog
+        title: "Choose gcode file"
+        folder: shortcuts.home
+        onAccepted: {
+            player.loadFile(fileUrl)
+        }
+    }
+
+    Item {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         width: parent.width / 2
         height: parent.height / 2
-        source: CVMatSurfaceSource {
-            name: "third"
+
+        RowLayout {
+            id: playerButtonsLayout
+            anchors.leftMargin: 16
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.right: parent.right
+            height: 48
+            spacing: 16
+
+            Button {
+                text: "Load"
+                font.pointSize: 20
+                onClicked: playerFileDialog.visible = true
+            }
+
+            Button {
+                text: "Play"
+                font.pointSize: 20
+                onClicked: player.play();
+            }
+
+            Button {
+                text: "Pause"
+                font.pointSize: 20
+                onClicked: player.pause();
+            }
+
+            Button {
+                text: "Stop"
+                font.pointSize: 20
+                onClicked: player.stop();
+            }
+
+            Text {
+                id: connectionStatusLabel
+                font.bold: true
+                font.pointSize: 16
+
+                function checkState() {
+                    var lstate = player.connectionState;
+                    if (lstate === GcodePlayer.Connected) {
+                        connectionStatusLabel.text = "MC:connected"
+                        connectionStatusLabel.color = "#4caf50"
+                    } else if (lstate === GcodePlayer.Connecting) {
+                        connectionStatusLabel.text = "MC:connecting"
+                        connectionStatusLabel.color = "#cddc39"
+                    } else if (lstate === GcodePlayer.Disconnected) {
+                        connectionStatusLabel.text = "MC:disconnected"
+                        connectionStatusLabel.color = "#f44336"
+                    }
+                }
+
+                Connections {
+                    id: c1
+                    target: player
+                    onConnectionStateChanged: connectionStatusLabel.checkState()
+                }
+
+                Component.onCompleted: connectionStatusLabel.checkState()
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: player.connectToMC()
+                }
+            }
+
+            Text {
+                id: playerStatusLabel
+                text: "STOPPED"
+                color: "orange"
+                font.bold: true
+                font.pointSize: 18
+
+                Connections {
+                    target: player
+                    onStateChanged: {
+                        var lstate = player.state;
+                        if (lstate === GcodePlayer.Playing) {
+                            playerStatusLabel.text = "PLAYING"
+                            playerStatusLabel.color = "#4caf50"
+                        } else if (lstate === GcodePlayer.Paused) {
+                            playerStatusLabel.text = "PAUSED"
+                            playerStatusLabel.color = "#cddc39"
+                        } else if (lstate === GcodePlayer.Stopped) {
+                            playerStatusLabel.text = "STOPPED"
+                            playerStatusLabel.color = "orange"
+                        } else if (lstate === GcodePlayer.Error) {
+                            playerStatusLabel.text = "ERROR"
+                            playerStatusLabel.color = "#f44336"
+                        }
+                    }
+                }
+            }
+
+            Text {
+                font.bold: true
+                font.pointSize: 18
+                color: "#ccc"
+                text: player.currentLineNumber + " / " + player.linesCount + " (" + (player.currentLineNumber / player.linesCount).toFixed(1) + " %)"
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+        }
+
+        ListView {
+            id: commandsListView
+            anchors.left: parent.left
+            anchors.top: playerButtonsLayout.bottom
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            clip: true
+
+            model: player.model
+
+            delegate: Rectangle {
+                height: 16
+                width: parent.width
+                color: model.lineNumber % 2 === 0 ? "#222" : "#333"
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 0
+
+                    Item {
+                        width: 6
+                    }
+
+                    Rectangle {
+                        width: parent.height * 0.6
+                        height: width
+                        //radius: height
+                        color: {
+                            if (model.status === GcodePlayerItem.Pending) {
+                                return "orange"
+                            } else if (model.status === GcodePlayerItem.Ok) {
+                                return "#4caf50"
+                            } else if (model.status === GcodePlayerItem.Warning) {
+                                return "red"
+                            } else if (model.status === GcodePlayerItem.InternalCommand) {
+                                return "blue"
+                            }
+
+                            return "gray"
+                        }
+                    }
+                    Item {
+                        width: 64
+                        height: parent.height
+                        //color: "#333"
+                        Text {
+                            anchors.fill: parent
+                            text: String(model.lineNumber).padStart(6, '0')
+                            color: "#666"
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: "Monaco"
+                        }
+                    }
+                    Item {
+                        height: parent.height
+                        Layout.fillWidth: true
+
+                        Text {
+                            anchors.fill: parent
+                            //anchors.leftMargin: 8
+                            text: {
+                                if (model.status === GcodePlayerItem.Warning) {
+                                    return model.code.trim() + " (" + model.response + ")"
+                                } else {
+                                    return model.code
+                                }
+                            }
+
+                            color: "#ccc"
+                            horizontalAlignment: Text.AlignLeft
+                            font.family: "Monaco"
+                        }
+                    }
+                }
+            }
+
+            ScrollBar.vertical: ScrollBar {
+                minimumSize: 0.1
+            }
         }
     }
 
@@ -346,17 +544,17 @@ Window {
         }
 
         Button {
-            text: "Take"
+            text: "Take pic"
             onClicked: cameraCalibrator.takePicture()
         }
 
         Button {
-            text: "Save Pics"
+            text: "Save pics"
             onClicked: cameraCalibrator.savePictures("./pictures")
         }
 
         Button {
-            text: "Load"
+            text: "Load pics"
             onClicked: cameraCalibrator.loadPictures("./pictures")
         }
 
@@ -366,17 +564,17 @@ Window {
         }
 
         Button {
-            text: "Save"
+            text: "Save calib"
             onClicked: cameraCalibrator.saveCalibrationData("undistort.yaml")
         }
 
         Button {
-            text: "Load"
+            text: "Load calib"
             onClicked: cameraCalibrator.loadCalibrationData("undistort.yaml")
         }
 
         Button {
-            text: "Apply"
+            text: "Apply calib"
             onClicked: cameraCalibrator.applyCalibrationData()
         }
 

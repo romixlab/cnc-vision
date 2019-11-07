@@ -12,7 +12,7 @@ find_package(Qt5 COMPONENTS Core Quick Qml Multimedia Charts REQUIRED)
 #find_package(ZeroMQ REQUIRED)
 find_package(OpenCV REQUIRED)
 
-file(GLOB_RECURSE sources *.cpp)
+file(GLOB_RECURSE sources *.cpp *.h)
 
 add_executable(${PROJECT_NAME}
         ${sources}

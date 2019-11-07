@@ -7,6 +7,7 @@
 #include "cameracalibrator.h"
 #include "linedetector.h"
 #include "linedetectordatasource.h"
+#include "gcodeplayer.h"
 
 int main(int argc, char *argv[])
 {
@@ -39,6 +40,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("cameraCalibrator", &cameraCalibrator);
     engine.rootContext()->setContextProperty("lineDetector", &lineDetector);
     engine.rootContext()->setContextProperty("lineDetectorDataSource", &lineDetectorDataSource);
+
+    GcodePlayer::registerQmlTypes();
+    GcodePlayerModel::registerQmlTypes();
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
