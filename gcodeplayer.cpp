@@ -98,7 +98,7 @@ GcodePlayer::ConnectionState GcodePlayer::connectionState() const
 void GcodePlayer::connectToMC()
 {
     if (m_connectionState == Disconnected) {
-        m_tcp->connectToHost("10.0.1.1", 5555);
+        m_tcp->connectToHost("192.168.88.77", 23);
         QTimer::singleShot(2000, [=](){
             if (this->m_connectionState != Connected)
                 this->m_tcp->abort();
