@@ -8,6 +8,7 @@
 #include "linedetector.h"
 #include "linedetectordatasource.h"
 #include "gcodeplayer.h"
+#include "rayreceiver.h"
 
 int main(int argc, char *argv[])
 {
@@ -43,6 +44,8 @@ int main(int argc, char *argv[])
 
     GcodePlayer::registerQmlTypes();
     GcodePlayerModel::registerQmlTypes();
+
+    RayReceiver receiver;
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
