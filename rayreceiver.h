@@ -24,6 +24,9 @@ public:
 signals:
 
 public slots:
+    void setLaserPower(int pwr);
+    void setTopExhaust(bool enabled);
+    void setBottomExhaust(bool enabled);
 
 private slots:
     void onReadyRead();

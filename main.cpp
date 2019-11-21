@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
     GcodePlayerModel::registerQmlTypes();
 
     RayReceiver receiver;
+    engine.rootContext()->setContextProperty("ray", &receiver);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

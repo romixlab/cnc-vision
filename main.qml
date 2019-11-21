@@ -336,6 +336,7 @@ Window {
     }
 
     Item {
+        id: playerItem
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         width: parent.width / 2
@@ -528,7 +529,66 @@ Window {
         }
     }
 
+    Item {
+        anchors.top: parent.top
+        anchors.left: buttonsLayout.right
+        anchors.bottom: playerItem.top
+        anchors.right: mainVideoOutput.left
+        anchors.margins: 20
+
+        ColumnLayout {
+            anchors.fill: parent
+
+            RowLayout {
+                Slider {
+                    property real lastValue: 0.45
+                    id: laserPowerSlider
+                    from: 0.45
+                    to: 5
+                    stepSize: 0.05
+                    onPressedChanged: {
+                        if (value !== lastValue) {
+                            lastValue = value
+                            var percent = value / 5.0 * 100
+                            ray.setLaserPower(percent)
+                        }
+                    }
+                }
+
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: laserPowerSlider.value.toFixed(2)
+                }
+            }
+
+            RowLayout {
+                Button {
+                    text: "TE"
+                    onClicked: ray.setTopExhaust(true)
+                }
+                Button {
+                    text: "TD"
+                    onClicked: ray.setTopExhaust(false)
+                }
+                Button {
+                    text: "BE"
+                    onClicked: ray.setBottomExhaust(true)
+                }
+                Button {
+                    text: "BD"
+                    onClicked: ray.setBottomExhaust(false)
+                }
+            }
+
+            RowLayout {
+                Layout.fillHeight: true
+            }
+        }
+    }
+
     ColumnLayout {
+        id: buttonsLayout
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom

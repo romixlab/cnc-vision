@@ -9,6 +9,25 @@ RayReceiver::RayReceiver(QObject *parent) : QObject(parent)
             this,  &RayReceiver::onReadyRead);
 }
 
+void RayReceiver::setLaserPower(int pwr)
+{
+    QString l = QString("l(%1)").arg(pwr);
+    m_udp->writeDatagram(l.toLocal8Bit(), QHostAddress("10.0.1.99"), 9999);
+}
+
+void RayReceiver::setTopExhaust(bool enabled)
+{
+    QString l = QString("t(%1)").arg(enabled ? '1' : '0');
+    qDebug() << l;
+    m_udp->writeDatagram(l.toLocal8Bit(), QHostAddress("10.0.1.99"), 9999);
+}
+
+void RayReceiver::setBottomExhaust(bool enabled)
+{
+    QString l = QString("b(%1)").arg(enabled ? '1' : '0');
+    m_udp->writeDatagram(l.toLocal8Bit(), QHostAddress("10.0.1.99"), 9999);
+}
+
 void RayReceiver::onReadyRead()
 {
     while (m_udp->hasPendingDatagrams()) {
