@@ -26,7 +26,7 @@ void CaptureWorker::doWork()
     if (ok) {
         m_capture = new cv::VideoCapture(deviceId);
     } else {
-        m_capture = new cv::VideoCapture("http://10.0.1.20:8080/?action=stream");
+        m_capture = new cv::VideoCapture("http://192.168.88.235:8080/?action=stream");
     }
     if (!m_capture->isOpened()) {
         qWarning() << "Can't capture" << m_device;

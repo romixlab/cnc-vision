@@ -52,7 +52,7 @@ void LineDetector::onFrameReady()
 {
     cv::Mat frame = m_captureController->frameCopy();
 
-    cv::Mat rm = cv::getRotationMatrix2D(cv::Point(frame.cols / 2, frame.rows / 2), m_angle, 1.0);
+    cv::Mat rm = cv::getRotationMatrix2D(cv::Point(frame.cols / 2, frame.rows / 2), m_angle + 90, 1.0);
     cv::Mat rotated;
     cv::warpAffine(frame, rotated, rm, cv::Size(frame.cols, frame.rows));
     frame = rotated;

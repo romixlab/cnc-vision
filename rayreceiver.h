@@ -24,7 +24,7 @@ public:
 signals:
 
 public slots:
-    void setLaserPower(int pwr);
+    void setLaserPower(float pwr);
     void setTopExhaust(bool enabled);
     void setBottomExhaust(bool enabled);
 

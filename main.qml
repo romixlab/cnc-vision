@@ -543,14 +543,14 @@ Window {
                 Slider {
                     property real lastValue: 0.45
                     id: laserPowerSlider
-                    from: 0.45
+                    from: 0.4
                     to: 5
-                    stepSize: 0.05
+                    stepSize: 0.01
                     onPressedChanged: {
                         if (value !== lastValue) {
                             lastValue = value
-                            var percent = value / 5.0 * 100
-                            ray.setLaserPower(percent)
+                            var normalized = value / 5.0
+                            ray.setLaserPower(normalized)
                         }
                     }
                 }
