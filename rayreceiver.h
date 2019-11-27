@@ -10,9 +10,9 @@ typedef struct {
     float mcs_y;
     float mcs_z;
     float mcs_b;
-    uint8_t state;
+    uint32_t state;
     uint32_t played;
-    uint32_t total;
+    int32_t total;
 } ray_payload_t;
 
 class RayReceiver : public QObject

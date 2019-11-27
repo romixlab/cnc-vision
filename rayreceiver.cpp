@@ -47,6 +47,6 @@ void RayReceiver::processPayload(QNetworkDatagram datagram)
         return;
     quint8 *p = (quint8 *)data.data();
     memcpy((void *)&m_payload, p, sizeof(ray_payload_t));
-    qDebug() << "x:" << m_payload.mcs_x << "\ty:" << m_payload.mcs_y << "\tz:" << m_payload.mcs_z << "\tb:" << m_payload.mcs_b;
-
+    //qDebug() << "x:" << m_payload.mcs_x << "\ty:" << m_payload.mcs_y << "\tz:" << m_payload.mcs_z << "\tb:" << m_payload.mcs_b;
+    qDebug() << "state: " << m_payload.state << "\tplayed:" << m_payload.played << "\ttotal:" << m_payload.total;
 }
