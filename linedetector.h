@@ -83,6 +83,8 @@ signals:
     void lineDetected(const QPointF &pt1, const QPointF &pt2);
     void stateChanged();
     void dzChanged();
+    void dzChanged(float dz);
+    void dzValidChanged(bool valid);
 
 public slots:
     void onFrameReady();

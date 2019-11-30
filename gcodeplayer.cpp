@@ -144,10 +144,13 @@ void GcodePlayer::onSocketStateChanged(QAbstractSocket::SocketState state)
 {
     if (state == QAbstractSocket::ConnectedState) {
         m_connectionState = Connected;
+        emit connectionStateChanged(true);
     } else if (state == QAbstractSocket::UnconnectedState) {
         m_connectionState = Disconnected;
+        emit connectionStateChanged(false);
     } else {
         m_connectionState = Connecting;
+        emit connectionStateChanged(false);
     }
     emit connectionStateChanged();
 }

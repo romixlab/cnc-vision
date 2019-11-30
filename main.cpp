@@ -9,6 +9,7 @@
 #include "linedetectordatasource.h"
 #include "gcodeplayer.h"
 #include "rayreceiver.h"
+#include "automator.h"
 
 int main(int argc, char *argv[])
 {
@@ -44,9 +45,26 @@ int main(int argc, char *argv[])
 
     GcodePlayer::registerQmlTypes();
     GcodePlayerModel::registerQmlTypes();
+    GcodePlayer player;
+    engine.rootContext()->setContextProperty("player", &player);
 
     RayReceiver receiver;
     engine.rootContext()->setContextProperty("ray", &receiver);
+
+    Automator automator;
+    engine.rootContext()->setContextProperty("automator", &automator);
+    QObject::connect(&lineDetector, QOverload<float>::of(&LineDetector::dzChanged),
+                     &automator,    &Automator::ondzChanged);
+    QObject::connect(&lineDetector, &LineDetector::dzValidChanged,
+                     &automator,    &Automator::ondzValidChanged);
+    QObject::connect(&player,       QOverload<bool>::of(&GcodePlayer::connectionStateChanged),
+                     &automator,    &Automator::onMcConnectionStateChanged);
+    QObject::connect(&receiver,     &RayReceiver::stateChanged,
+                     &automator,    &Automator::onMcStateChanged);
+    QObject::connect(&receiver,     &RayReceiver::coordsChanged,
+                     &automator,    &Automator::onCoordsChanged);
+    QObject::connect(&receiver,     &RayReceiver::connectionStateChanged,
+                     &automator,    &Automator::onRayConnectionStateChanged);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

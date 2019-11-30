@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QUdpSocket>
 #include <QNetworkDatagram>
+#include <QTimer>
 
 typedef struct {
     float mcs_x;
@@ -18,10 +19,22 @@ typedef struct {
 class RayReceiver : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool connected READ connected NOTIFY connectionStateChanged)
 public:
     explicit RayReceiver(QObject *parent = nullptr);
 
+    enum State {
+        NotPlaying = 2,
+        Paused = 1,
+        Playing = 3
+    };
+
+    bool connected() const;
+
 signals:
+    void stateChanged(State s);
+    void coordsChanged(float x, float y, float z, float b);
+    void connectionStateChanged(bool connected);
 
 public slots:
     void setLaserPower(float pwr);
@@ -30,12 +43,15 @@ public slots:
 
 private slots:
     void onReadyRead();
+    void onTimerTimeout();
 
 private:
     void processPayload(QNetworkDatagram datagram);
 
     QUdpSocket *m_udp;
     ray_payload_t m_payload;
+    QTimer m_timer;
+    bool m_connected;
 };
 
 #endif // RAYRECEIVER_H

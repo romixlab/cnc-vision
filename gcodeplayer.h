@@ -50,6 +50,7 @@ signals:
     void linesCountChanged();
     void stateChanged();
     void connectionStateChanged();
+    void connectionStateChanged(bool connected);
 
 public slots:
     void connectToMC();

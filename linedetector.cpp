@@ -143,11 +143,13 @@ void LineDetector::onFrameReady()
         //float dx = dxs / (M * m_ppmm);
         m_dz = (m_lz * dxs * (m_s0 - m_f) ) / (m_lx * m_f * m_ppmm - m_lz * dxs);
         emit dzChanged();
+        emit dzChanged(m_dz);
 
         if (m_state != Locked) {
             m_state = Locked;
             m_timer->stop();
             emit stateChanged();
+            emit dzValidChanged(true);
         }
     } else {
         if (m_state == Locked) {
@@ -162,6 +164,7 @@ void LineDetector::onTimeout()
 {
     m_state = Unlocked;
     emit stateChanged();
+    emit dzValidChanged(false);
 }
 
 float LineDetector::rotation() const

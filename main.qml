@@ -321,10 +321,10 @@ Window {
         onDimensionsChanged: osdRescale(testRect, secondVideoSource, secondVideoOutput)
     }
 
-    GcodePlayer {
-        id: player
-        onCurrentLineChanged: commandsListView.positionViewAtIndex(currentLineNumber, ListView.Center)
-    }
+//    GcodePlayer {
+//        id: player
+//        onCurrentLineChanged: commandsListView.positionViewAtIndex(currentLineNumber, ListView.Center)
+//    }
 
     FileDialog {
         id: playerFileDialog
@@ -353,32 +353,28 @@ Window {
 
             Button {
                 text: "Load"
-                font.pointSize: 20
                 onClicked: playerFileDialog.visible = true
             }
 
             Button {
                 text: "Play"
-                font.pointSize: 20
                 onClicked: player.play();
             }
 
             Button {
                 text: "Pause"
-                font.pointSize: 20
                 onClicked: player.pause();
             }
 
             Button {
                 text: "Stop"
-                font.pointSize: 20
                 onClicked: player.stop();
             }
 
             Text {
                 id: connectionStatusLabel
                 font.bold: true
-                font.pointSize: 16
+                font.pointSize: 14
 
                 function checkState() {
                     var lstate = player.connectionState;
@@ -413,7 +409,7 @@ Window {
                 text: "STOPPED"
                 color: "orange"
                 font.bold: true
-                font.pointSize: 18
+                font.pointSize: 14
 
                 Connections {
                     target: player
@@ -438,7 +434,7 @@ Window {
 
             Text {
                 font.bold: true
-                font.pointSize: 18
+                font.pointSize: 14
                 color: "#ccc"
                 text: player.currentLineNumber + " / " + player.linesCount + " (" + (player.currentLineNumber / player.linesCount).toFixed(1) + " %)"
             }
@@ -555,6 +551,22 @@ Window {
                     }
                 }
 
+                Button {
+                    text: "+0.01"
+                    onClicked: {
+                        laserPowerSlider.value += 0.01
+                        laserPowerSlider.onPressedChanged()
+                    }
+                }
+
+                Button {
+                    text: "-0.01"
+                    onClicked: {
+                        laserPowerSlider.value -= 0.01
+                        laserPowerSlider.onPressedChanged()
+                    }
+                }
+
                 Text {
                     color: "#ccc"
                     font.bold: true
@@ -578,6 +590,45 @@ Window {
                 Button {
                     text: "BD"
                     onClicked: ray.setBottomExhaust(false)
+                }
+            }
+
+            RowLayout {
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: "Ray:"
+                }
+                Text {
+                    font.bold: true
+                    text: ray.connected ? "connected" : "disconnected"
+                    color: ray.connected ? "green" : "red"
+                }
+            }
+
+            RowLayout {
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: "Automator:"
+                }
+
+                Switch {
+                    id: automatorEnableSwitch
+                    onCheckedChanged: automator.enabled = checked
+                }
+
+                Text {
+                    id: automatorWorkingLabel
+                    font.bold: true
+                    text: automator.working ? "working" : "stopped"
+                    color: automator.working ? "green" : "red"
+                }
+
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: automator.message
                 }
             }
 
