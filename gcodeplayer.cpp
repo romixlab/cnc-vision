@@ -95,6 +95,13 @@ GcodePlayer::ConnectionState GcodePlayer::connectionState() const
     return m_connectionState;
 }
 
+void GcodePlayer::send(const QString &command)
+{
+    if (m_connectionState != Disconnected) {
+        m_tcp->write(command.toLocal8Bit());
+    }
+}
+
 void GcodePlayer::connectToMC()
 {
     if (m_connectionState == Disconnected) {

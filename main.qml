@@ -537,7 +537,7 @@ Window {
 
             RowLayout {
                 Slider {
-                    property real lastValue: 0.45
+                    property real lastValue: 0.4
                     id: laserPowerSlider
                     from: 0.4
                     to: 5
@@ -629,6 +629,116 @@ Window {
                     color: "#ccc"
                     font.bold: true
                     text: automator.message
+                }
+
+//                Slider {
+//                    from: -100
+//                    to: 100
+//                    onValueChanged: {
+//                        compValue.text = value
+//                        compTest.text = automator.compensate(value)
+//                    }
+//                }
+
+//                Text {
+//                    id: compValue
+//                    color: "white"
+//                }
+
+//                Text {
+//                    id: compTest
+//                    color: "white"
+//                }
+            }
+
+            RowLayout {
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: "Max PWR:"
+                }
+
+                Slider {
+                    id: maxPowerSlider
+                    property real lastValue: 1.0
+                    from: 0.4
+                    to: 5
+                    value: 1.0
+                    onPressedChanged: {
+                        if (value !== lastValue) {
+                            lastValue = value
+                            automator.maxPower = value
+                        }
+                    }
+                }
+
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: maxPowerSlider.value.toFixed(2)
+                }
+            }
+
+            RowLayout {
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: "Min PWR:"
+                }
+
+                Slider {
+                    id: minPowerSlider
+                    property real lastValue: 0.8
+                    from: 0.4
+                    to: 5
+                    value: 0.8
+                    onValueChanged: automator.minPower = value
+                    onPressedChanged: {
+                        if (value !== lastValue) {
+                            lastValue = value
+                            automator.minPower = value
+                        }
+                    }
+                }
+
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: minPowerSlider.value.toFixed(2)
+                }
+            }
+
+            RowLayout {
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: "Auto B:"
+                }
+
+                Switch {
+                    onCheckedChanged: automator.autosendB = checked
+                }
+
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: "Auto PWR:"
+                }
+
+                Switch {
+                    onCheckedChanged: automator.autosendPower = checked
+                }
+
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: "PWR:"
+                }
+
+                Text {
+                    color: "#ccc"
+                    font.bold: true
+                    text: automator.lastSentPower.toFixed(2)
                 }
             }
 

@@ -45,6 +45,8 @@ public:
     State state() const;
     ConnectionState connectionState() const;
 
+
+
 signals:
     void currentLineChanged();
     void linesCountChanged();
@@ -52,11 +54,13 @@ signals:
     void connectionStateChanged();
     void connectionStateChanged(bool connected);
 
+
 public slots:
     void connectToMC();
     void play();
     void pause();
     void stop();
+    void send(const QString &command);
 
 private slots:
     void onSocketStateChanged(QAbstractSocket::SocketState state);
