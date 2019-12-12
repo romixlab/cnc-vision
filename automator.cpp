@@ -76,7 +76,7 @@ void Automator::onCoordsChanged(float x, float y, float z, float b)
         return;
 
     m_lastSentPower = targetPower;
-    emit changePower(m_lastSentPower);
+    emit changePower(m_lastSentPower / 5.0);
 
     m_powerTimer.start();
 }
