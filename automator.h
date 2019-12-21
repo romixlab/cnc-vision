@@ -67,6 +67,7 @@ private:
     float m_mcs_x;
     float m_mcs_y;
     float m_mcs_b;
+    float m_mcs_b_initial;
     QString m_message;
     bool m_autosendB;
     bool m_autosendPower;

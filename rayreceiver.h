@@ -25,7 +25,7 @@ public:
 
     enum State {
         NotPlaying = 2,
-        Paused = 1,
+        Paused = 0,
         Playing = 3
     };
 
