@@ -67,6 +67,8 @@ int main(int argc, char *argv[])
                      &automator,    &Automator::onRayConnectionStateChanged);
     QObject::connect(&automator,    &Automator::changePower,
                      &receiver,     &RayReceiver::setLaserPower);
+    QObject::connect(&automator,    &Automator::sendToMC,
+                     &player,       &GcodePlayer::send);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

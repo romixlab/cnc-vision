@@ -52,6 +52,7 @@ private:
     ray_payload_t m_payload;
     QTimer m_timer;
     bool m_connected;
+    State m_lastState;
 };
 
 #endif // RAYRECEIVER_H

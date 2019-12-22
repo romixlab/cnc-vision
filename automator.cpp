@@ -93,7 +93,7 @@ void Automator::onMcStateChanged(RayReceiver::State s)
             m_message = "No entry in comp table";
             emit messageChanged();
         } else {
-            float targetB = m_mcs_b_initial - compensated;
+            float targetB = m_mcs_b_initial + compensated;
             QString correction = QString("G90 G0 B%1\n").arg(targetB);
             m_message = correction;
             if (m_autosendB) {
@@ -1219,7 +1219,7 @@ float Automator::compensate(float dz) const
                          -2.9,	0.00576375460390177,
                          -3,	0.00124094844761019,
                          -3.1,	-0.00328658006041249,
-                         -3.2,	-0.00781883092016605,
+                         -3.2,	0.00781883092016605,
                          -3.3,	-0.0123558041316507,
                          -3.4,	-0.0168974996948664,
                          -3.5,	-0.0214439176098133,
@@ -1360,6 +1360,7 @@ void Automator::setEnabled(bool enabled)
 {
     m_enabled = enabled;
     emit enabledChanged();
+    checkWorkingState();
 }
 
 QString Automator::message() const
